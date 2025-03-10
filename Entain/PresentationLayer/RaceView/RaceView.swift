@@ -39,7 +39,7 @@ struct RaceView: View {
           ProgressView()
         case .success(let races):
           List(races, id: \.raceID) { race in
-            Text(race.raceName ?? "Unknown Race")
+            RaceDetailsListViewItem(viewModel: viewModel.getRaceItemViewModel(for: race))
           }
           .padding(.top, 16)
         case .failure(let errorMessage):

@@ -57,6 +57,14 @@ class RaceViewModel: ObservableObject {
     fetchRaces()
   }
   
+  func getRaceItemViewModel(for race: RaceSummary) -> RaceDetailsListViewItemViewModel {
+    return RaceDetailsListViewItemViewModel(
+      raceImage: race.raceCategory.imageName,
+      raceName: race.raceName ?? "Unknown Race",
+      raceCountry: race.venueCountry ?? "Unknown Country",
+      raceStartTime: Date(timeIntervalSince1970: TimeInterval(race.advertisedStart?.seconds ?? 0))
+    )
+  }
 }
 
 extension RaceViewModel: CustomToolbarDelegate {
