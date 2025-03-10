@@ -11,13 +11,17 @@ import SwiftUI
 protocol CustomToolbarDelegate: AnyObject {
   func didTapSearch()
   @MainActor func didTapRefresh()
-  func didTapFilter()
+  func didTapFilter(selectedFilters: [RaceCategory])
 }
 
 struct CustomToolbar: ToolbarContent {
   weak var delegate: CustomToolbarDelegate?
+  @State private var showFilterMenu = false
+  @State private var selectedFilters: Set<RaceCategory> = []
+  
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .navigationBarTrailing) {
+      
       Button(action: {
         delegate?.didTapSearch()
       }) {
@@ -27,10 +31,18 @@ struct CustomToolbar: ToolbarContent {
       .accessibilityIdentifier("SearchButton")
       
       Button(action: {
-        delegate?.didTapFilter()
+        showFilterMenu.toggle()
       }) {
         Image(systemName: "line.3.horizontal.decrease.circle")
           .foregroundColor(.white)
+      }
+      .popover(isPresented: $showFilterMenu, arrowEdge: .top) {
+        RaceFilterView(
+          selectedFilters: $selectedFilters,
+          isPresented: $showFilterMenu
+        ) { filters in
+          delegate?.didTapFilter(selectedFilters: filters)
+        }
       }
       .accessibilityIdentifier("FilterButton")
       
