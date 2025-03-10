@@ -60,6 +60,9 @@ struct RaceView: View {
         .padding()
       }
       .navigationTitle("Next to go")
+      .toolbar {
+        CustomToolbar(delegate: viewModel)
+      }
       .onAppear {
         if case .loading = viewModel.state {
           viewModel.fetchRaces()

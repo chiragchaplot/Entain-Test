@@ -57,15 +57,18 @@ class RaceViewModel: ObservableObject {
     fetchRaces()
   }
   
-  @MainActor func refreshTapped() {
-    fetchAgain()
+}
+
+extension RaceViewModel: CustomToolbarDelegate {
+  func didTapSearch() {
+    // TODO: - Search
   }
   
-  func filterTapped() {
-   
+  @MainActor func didTapRefresh() {
+    self.fetchAgain()
   }
   
-  func searchTapped() {
-    
+  func didTapFilter() {
+    // TODO: - Filter
   }
 }
