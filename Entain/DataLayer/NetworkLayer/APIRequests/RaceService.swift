@@ -21,8 +21,6 @@ class RaceService: RaceServiceProtocol {
   
   func fetchNextRaces(count: Int) async throws -> RaceResponse {
     let apiObject = RaceAPIObject(
-      path: "/rest/v1/racing/",
-      method: "GET",
       queryParams: ["method": "nextraces", "count": "\(count)"]
     )
     
@@ -35,8 +33,8 @@ class RaceService: RaceServiceProtocol {
 }
 
 struct RaceAPIObject: APIRequest {
-  let path: String
-  let method: String
+  let path: String = "/rest/v1/racing/"
+  let method: String = "GET"
   let queryParams: [String: String]
   
   func buildURL() -> URL? {

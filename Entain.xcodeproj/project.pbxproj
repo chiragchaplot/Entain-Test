@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		059058032D7D516B0095DE32 /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 059058022D7D516B0095DE32 /* IDETemplateMacros.plist */; };
 		05F6549E2D7E6D98004C7794 /* Testing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F6549D2D7E6D98004C7794 /* Testing.framework */; platformFilter = ios; };
 		05F6549F2D7E6D98004C7794 /* Testing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 05F6549D2D7E6D98004C7794 /* Testing.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		05F654A32D7E6FDA004C7794 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F654992D7E6D88004C7794 /* XCTest.framework */; platformFilter = ios; };
@@ -41,7 +40,6 @@
 
 /* Begin PBXFileReference section */
 		059057E82D7D4F830095DE32 /* Entain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Entain.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		059058022D7D516B0095DE32 /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = IDETemplateMacros.plist; sourceTree = "<group>"; };
 		05E175CB2D7E6CCA005A6B18 /* EntainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EntainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F654992D7E6D88004C7794 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		05F6549D2D7E6D98004C7794 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
@@ -83,7 +81,6 @@
 		059057DF2D7D4F830095DE32 = {
 			isa = PBXGroup;
 			children = (
-				059058022D7D516B0095DE32 /* IDETemplateMacros.plist */,
 				059057EA2D7D4F830095DE32 /* Entain */,
 				05E175CC2D7E6CCA005A6B18 /* EntainTests */,
 				05F654982D7E6D88004C7794 /* Frameworks */,
@@ -202,7 +199,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				059058032D7D516B0095DE32 /* IDETemplateMacros.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,7 +427,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.EntainTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Entain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Entain";
 			};
@@ -449,7 +445,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.EntainTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Entain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Entain";
 			};
