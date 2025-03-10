@@ -5,8 +5,6 @@
 //  Created by Chirag Chaplot on 10/3/2025.
 //  Copyright © 2025 Chirag Chaplot Pvt Ltd. All rights reserved.
 //
-
-
 import SwiftUI
 
 struct RaceFilterView: View {
@@ -16,22 +14,19 @@ struct RaceFilterView: View {
   
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
-      Text("Filter Races")
-        .font(.headline)
-        .padding(.bottom, 5)
-      
-      ForEach(RaceCategory.allCases) { category in
-        HStack {
-          Image(systemName: selectedFilters.contains(category) ? "checkmark.square.fill" : "square")
-            .foregroundColor(.blue)
-            .onTapGesture {
-              toggleSelection(for: category)
-            }
-          Text(category.rawValue)
-            .onTapGesture {
-              toggleSelection(for: category)
-            }
+      ForEach(RaceCategory.allCases, id: \.self) { category in
+        Button(action: {
+          toggleSelection(for: category)
+        }) {
+          HStack {
+            Image(systemName: selectedFilters.contains(category) ? "checkmark.square.fill" : "square")
+              .foregroundColor(.blue)
+            Text(category.displayName)
+              .foregroundColor(.primary)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .buttonStyle(.plain)
       }
       
       Button("Apply") {
@@ -45,10 +40,10 @@ struct RaceFilterView: View {
       .cornerRadius(8)
     }
     .padding()
-    .frame(width: 200)
     .background(Color(.systemBackground))
     .cornerRadius(10)
     .shadow(radius: 5)
+    .frame(width: 200)
   }
   
   private func toggleSelection(for category: RaceCategory) {

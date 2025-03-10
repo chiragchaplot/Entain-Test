@@ -31,19 +31,7 @@ class RaceViewModel: ObservableObject {
     Task {
       do {
         let raceResponse = try await interactor.getNextRaces(count: 10)
-        var fetchedRaces = raceResponse.data?.nextToGoIDS?.compactMap { id in
-          raceResponse.data?.raceSummaries?[id]
-        } ?? []
-        fetchedRaces.sort {
-          guard let date1 = $0.advertisedStart?.seconds, let date2 = $1.advertisedStart?.seconds else {
-            return false
-          }
-          return date1 < date2
-        }
-        self.races = fetchedRaces
-        
-        self.errorMessage = nil
-        state = .success(fetchedRaces)
+        processFetchedRaces(raceResponse: raceResponse)
       } catch {
         self.races = []
         self.errorMessage = (error as? NetworkError)?.localizedDescription ?? "An error occurred."
@@ -52,17 +40,39 @@ class RaceViewModel: ObservableObject {
     }
   }
   
+  
+  private func processFetchedRaces(raceResponse: RaceResponse) {
+    var fetchedRaces = raceResponse.data?.nextToGoIDS?.compactMap { id in
+      raceResponse.data?.raceSummaries?[id]
+    } ?? []
+    
+    fetchedRaces.sort {
+      guard let date1 = $0.advertisedStart?.seconds, let date2 = $1.advertisedStart?.seconds else {
+        return false
+      }
+      return date1 < date2
+    }
+    
+    self.races = fetchedRaces
+    self.errorMessage = nil
+    state = .success(fetchedRaces)
+  }
+  
   @MainActor func fetchAgain() {
     state = .fetchAgain
     fetchRaces()
   }
   
   func getRaceItemViewModel(for race: RaceSummary) -> RaceDetailsListViewItemViewModel {
+    let raceNumber = "R\(race.raceNumber ?? 0)"
+    let raceCountry = race.venueCountry ?? "Unknown Country"
+    let raceName = race.meetingName ?? "Unknown Race"
     return RaceDetailsListViewItemViewModel(
       raceImage: race.raceCategory.imageName,
-      raceName: race.raceName ?? "Unknown Race",
-      raceCountry: race.venueCountry ?? "Unknown Country",
-      raceStartTime: Date(timeIntervalSince1970: TimeInterval(race.advertisedStart?.seconds ?? 0))
+      raceName: raceName,
+      raceCountry: raceCountry,
+      raceStartTime: Date(timeIntervalSince1970: TimeInterval(race.advertisedStart?.seconds ?? 0)),
+      raceNumber: raceNumber
     )
   }
 }
@@ -70,6 +80,7 @@ class RaceViewModel: ObservableObject {
 extension RaceViewModel: CustomToolbarDelegate {
   func didTapFilter(selectedFilters: [RaceCategory]) {
     // TODO: - Filter
+    print("Chirag:- \(selectedFilters)")
   }
   
   func didTapSearch() {

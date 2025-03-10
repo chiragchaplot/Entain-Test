@@ -17,15 +17,19 @@ struct RaceDetailsListViewItem: View {
   }
   
   var body: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: 8) {
       Image(viewModel.raceImage)
         .resizable()
         .frame(width: 40, height: 40)
         .clipShape(Circle())
       
+      Text(viewModel.raceNumber)
+        .font(.headline)
+        .foregroundColor(.orange)
+      
       VStack(alignment: .leading, spacing: 4) {
         Text(viewModel.raceName)
-          .font(.headline)
+          .font(.subheadline)
         
         Text(viewModel.raceCountry)
           .font(.subheadline)
@@ -42,7 +46,7 @@ struct RaceDetailsListViewItem: View {
         .font(.subheadline)
         .foregroundColor(.red)
     }
-    .padding()
+    .padding(.vertical, 5)
   }
 }
 
@@ -51,6 +55,7 @@ struct RaceDetailsListViewItem: View {
     raceImage: "horse-racing",
     raceName: "Grand Derby",
     raceCountry: "USA",
-    raceStartTime: Calendar.current.date(byAdding: .minute, value: -10, to: Date())!
+    raceStartTime: Calendar.current.date(byAdding: .minute, value: -10, to: Date())!,
+    raceNumber: "R2"
 ))
 }

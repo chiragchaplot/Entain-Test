@@ -13,25 +13,32 @@ class RaceDetailsListViewItemViewModel: ObservableObject {
   let raceName: String
   let raceCountry: String
   let raceStartTime: Date
+  let raceNumber: String
   
   @Published var timeDifference: String = ""
   
   private var timer: Timer?
   
-  init(raceImage: String, raceName: String, raceCountry: String, raceStartTime: Date) {
+  init(raceImage: String, raceName: String, raceCountry: String, raceStartTime: Date, raceNumber: String) {
     self.raceImage = raceImage
     self.raceName = raceName
     self.raceCountry = raceCountry
     self.raceStartTime = raceStartTime
+    self.raceNumber = raceNumber
     updateTimeDifference()
     startTimer()
   }
   
   private func updateTimeDifference() {
-    let diff = Date().timeIntervalSince(raceStartTime)
-    let minutes = Int(diff) / 60
-    let seconds = Int(diff) % 60
-    self.timeDifference = "\(minutes)m \(seconds)s ago"
+      let diff = Date().timeIntervalSince(raceStartTime)
+      let minutes = Int(abs(diff)) / 60
+      let seconds = Int(abs(diff)) % 60
+      
+      if diff > 0 {
+          self.timeDifference = "Started \(minutes)m \(seconds)s ago"
+      } else {
+          self.timeDifference = "\(minutes)m \(seconds)s to go"
+      }
   }
   
   private func startTimer() {

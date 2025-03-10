@@ -14,45 +14,70 @@ protocol CustomToolbarDelegate: AnyObject {
   func didTapFilter(selectedFilters: [RaceCategory])
 }
 
-struct CustomToolbar: ToolbarContent {
+import SwiftUI
+
+struct CustomToolbar: View {
   weak var delegate: CustomToolbarDelegate?
   @State private var showFilterMenu = false
-  @State private var selectedFilters: Set<RaceCategory> = []
+  @State private var selectedFilters: Set<RaceCategory> = [.greyhound, .harness, .horse]
   
-  var body: some ToolbarContent {
-    ToolbarItemGroup(placement: .navigationBarTrailing) {
-      
-      Button(action: {
-        delegate?.didTapSearch()
-      }) {
-        Image(systemName: "magnifyingglass")
-          .foregroundColor(.white)
+  var body: some View {
+    ZStack(alignment: .topTrailing) {
+      HStack {
+        Button(action: {
+          delegate?.didTapSearch()
+        }) {
+          Image(systemName: "magnifyingglass")
+            .foregroundColor(.white)
+        }
+        .accessibilityIdentifier("SearchButton")
+        
+        Button(action: {
+          withAnimation {
+            showFilterMenu.toggle()
+          }
+        }) {
+          Image(systemName: "line.3.horizontal.decrease.circle")
+            .foregroundColor(.white)
+        }
+        .accessibilityIdentifier("FilterButton")
+        
+        Button(action: {
+          delegate?.didTapRefresh()
+        }) {
+          Image(systemName: "arrow.clockwise")
+            .foregroundColor(.white)
+        }
+        .accessibilityIdentifier("RefreshButton")
       }
-      .accessibilityIdentifier("SearchButton")
+      .padding()
       
-      Button(action: {
-        showFilterMenu.toggle()
-      }) {
-        Image(systemName: "line.3.horizontal.decrease.circle")
-          .foregroundColor(.white)
-      }
-      .popover(isPresented: $showFilterMenu, arrowEdge: .top) {
+      if showFilterMenu {
+        Color.black.opacity(0)
+          .ignoresSafeArea()
+          .onTapGesture {
+            withAnimation {
+              showFilterMenu = false
+            }
+          }
+        
         RaceFilterView(
           selectedFilters: $selectedFilters,
           isPresented: $showFilterMenu
         ) { filters in
           delegate?.didTapFilter(selectedFilters: filters)
         }
+        .transition(.move(edge: .top).combined(with: .blurReplace))
+        .offset(y: 150)
+        
       }
-      .accessibilityIdentifier("FilterButton")
-      
-      Button(action: {
-        delegate?.didTapRefresh()
-      }) {
-        Image(systemName: "arrow.clockwise")
-          .foregroundColor(.white)
-      }
-      .accessibilityIdentifier("RefreshButton")
     }
+    .background(EmptyView().onTapGesture {
+      if showFilterMenu {
+        withAnimation {
+          showFilterMenu = false
+        }
+      }
+    })
   }
 }
