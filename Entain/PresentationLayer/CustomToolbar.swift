@@ -14,15 +14,13 @@ protocol CustomToolbarDelegate: AnyObject {
   func didTapFilter(selectedFilters: [RaceCategory])
 }
 
-import SwiftUI
-
 struct CustomToolbar: View {
   weak var delegate: CustomToolbarDelegate?
   @State private var showFilterMenu = false
   @State private var selectedFilters: Set<RaceCategory> = [.greyhound, .harness, .horse]
   
   var body: some View {
-    ZStack(alignment: .topTrailing) {
+    ZStack {
       HStack {
         Button(action: {
           delegate?.didTapSearch()
@@ -52,32 +50,15 @@ struct CustomToolbar: View {
       }
       .padding()
       
-      if showFilterMenu {
-        Color.black.opacity(0)
-          .ignoresSafeArea()
-          .onTapGesture {
-            withAnimation {
-              showFilterMenu = false
-            }
-          }
-        
+      .sheet(isPresented: $showFilterMenu) {
         RaceFilterView(
           selectedFilters: $selectedFilters,
           isPresented: $showFilterMenu
         ) { filters in
           delegate?.didTapFilter(selectedFilters: filters)
         }
-        .transition(.move(edge: .top).combined(with: .blurReplace))
-        .offset(y: 150)
-        
+        .background(Color.clear)
       }
     }
-    .background(EmptyView().onTapGesture {
-      if showFilterMenu {
-        withAnimation {
-          showFilterMenu = false
-        }
-      }
-    })
   }
 }

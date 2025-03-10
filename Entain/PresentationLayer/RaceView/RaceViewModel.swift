@@ -79,8 +79,14 @@ class RaceViewModel: ObservableObject {
 
 extension RaceViewModel: CustomToolbarDelegate {
   func didTapFilter(selectedFilters: [RaceCategory]) {
-    // TODO: - Filter
-    print("Chirag:- \(selectedFilters)")
+    if selectedFilters.isEmpty {
+      state = .success(races)
+    } else {
+      let filteredRaces = races.filter { race in
+        selectedFilters.contains(race.raceCategory)
+      }
+      state = .success(filteredRaces)
+    }
   }
   
   func didTapSearch() {
