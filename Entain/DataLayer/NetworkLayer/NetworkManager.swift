@@ -8,45 +8,50 @@
 
 import Foundation
 
-enum NetworkError: LocalizedError {
+enum NetworkError: Error, Equatable {
   case invalidURL
-  case requestFailed(Int) // HTTP status codes
+  case requestFailed(Int)
   case noData
   case decodingFailed(String)
   case internetUnavailable
   case unknown(Error)
   
-  var errorDescription: String? {
-    switch self {
-    case .invalidURL:
-      return "The URL is invalid."
-    case .requestFailed(let statusCode):
-      return "Request failed with status code \(statusCode)."
-    case .noData:
-      return "No data was received from the server."
-    case .decodingFailed(let error):
-      return "Failed to decode the response: \(error)"
-    case .internetUnavailable:
-      return "The internet connection appears to be offline."
-    case .unknown(let error):
-      return error.localizedDescription.isEmpty ? "An unknown error occurred" : "\(error.localizedDescription)"
+  static func == (lhs: NetworkError, rhs: NetworkError) -> Bool {
+    switch (lhs, rhs) {
+    case (.invalidURL, .invalidURL),
+      (.noData, .noData),
+      (.internetUnavailable, .internetUnavailable):
+      return true
+    case let (.requestFailed(code1), .requestFailed(code2)):
+      return code1 == code2
+    case let (.decodingFailed(message1), .decodingFailed(message2)):
+      return message1 == message2
+    case let (.unknown(error1), .unknown(error2)):
+      return error1.localizedDescription == error2.localizedDescription
+    default:
+      return false
     }
   }
 }
+
+protocol URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {}
 
 protocol NetworkService {
   func fetch<T: Decodable>(url: URL?, responseType: T.Type) async throws -> T
 }
 
 class NetworkManager: NetworkService {
-  private let urlSession: URLSession
+  private let session: URLSessionProtocol
   
-  init(urlSession: URLSession = .shared) {
-    self.urlSession = urlSession
+  init(session: URLSessionProtocol = URLSession.shared) {
+    self.session = session
   }
   
   func fetch<T: Decodable>(url: URL?, responseType: T.Type) async throws -> T {
-    // Validate the URL
     guard let url = url,
           URLComponents(url: url, resolvingAgainstBaseURL: false) != nil,
           url.absoluteString.range(of: "^[a-zA-Z0-9+.-]+://", options: .regularExpression) != nil else {
@@ -54,7 +59,7 @@ class NetworkManager: NetworkService {
     }
     
     do {
-      let (data, response) = try await urlSession.data(for: URLRequest(url: url))
+      let (data, response) = try await session.data(for: URLRequest(url: url))
       
       guard let httpResponse = response as? HTTPURLResponse else {
         throw NetworkError.unknown(URLError(.badServerResponse))
@@ -71,16 +76,9 @@ class NetworkManager: NetworkService {
       do {
         let decodedObject = try JSONDecoder().decode(T.self, from: data)
         return decodedObject
-      } catch let decodingError as DecodingError {
-        throw NetworkError.decodingFailed(decodingError.localizedDescription)
+      } catch {
+        throw NetworkError.decodingFailed(error.localizedDescription)
       }
-    } catch let urlError as URLError {
-      if urlError.code == .notConnectedToInternet {
-        throw NetworkError.internetUnavailable
-      }
-      throw NetworkError.unknown(urlError)
-    } catch {
-      throw NetworkError.unknown(error)
     }
   }
 }

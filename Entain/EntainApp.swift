@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct EntainApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+  @StateObject private var raceViewModel = RaceViewModel(interactor: RaceInteractor(raceService: RaceService()))
+  var body: some Scene {
+    WindowGroup {
+      RaceView(viewModel: raceViewModel)
     }
+  }
 }

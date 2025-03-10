@@ -5,16 +5,36 @@
 //  Created by Chirag Chaplot on 10/3/2025.
 //  Copyright © 2025 Chirag Chaplot Pvt Ltd. All rights reserved.
 //
-    
+
 
 import SwiftUI
 
 struct RaceView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+  @ObservedObject var viewModel: RaceViewModel
+  
+  var body: some View {
+    VStack {
+      Text("Upcoming Races")
+        .font(.largeTitle)
+        .padding()
+      
+      List(viewModel.races, id: \.raceID) { race in
+        Text(race.raceName ?? "Unknown Race")
+      }
+      
+      if let errorMessage = viewModel.errorMessage {
+        Text(errorMessage)
+          .foregroundColor(.red)
+          .padding()
+      }
+      
+      Button("Fetch Next Races") {
+        viewModel.fetchRaces()
+      }
+      .padding()
     }
-}
-
-#Preview {
-    RaceView()
+    .onAppear {
+      viewModel.fetchRaces()
+    }
+  }
 }

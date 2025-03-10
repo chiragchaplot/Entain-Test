@@ -6,14 +6,56 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		059058032D7D516B0095DE32 /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 059058022D7D516B0095DE32 /* IDETemplateMacros.plist */; };
+		05F6549E2D7E6D98004C7794 /* Testing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F6549D2D7E6D98004C7794 /* Testing.framework */; platformFilter = ios; };
+		05F6549F2D7E6D98004C7794 /* Testing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 05F6549D2D7E6D98004C7794 /* Testing.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		05F654A32D7E6FDA004C7794 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F654992D7E6D88004C7794 /* XCTest.framework */; platformFilter = ios; };
+		05F654A42D7E6FDA004C7794 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 05F654992D7E6D88004C7794 /* XCTest.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		05E175CF2D7E6CCA005A6B18 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 059057E02D7D4F830095DE32 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 059057E72D7D4F830095DE32;
+			remoteInfo = Entain;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		05F6549C2D7E6D89004C7794 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				05F6549F2D7E6D98004C7794 /* Testing.framework in Embed Frameworks */,
+				05F654A42D7E6FDA004C7794 /* XCTest.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		059057E82D7D4F830095DE32 /* Entain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Entain.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		059058022D7D516B0095DE32 /* IDETemplateMacros.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = IDETemplateMacros.plist; sourceTree = "<group>"; };
+		05E175CB2D7E6CCA005A6B18 /* EntainTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EntainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		05F654992D7E6D88004C7794 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		05F6549D2D7E6D98004C7794 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		059057EA2D7D4F830095DE32 /* Entain */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Entain;
+			sourceTree = "<group>";
+		};
+		05E175CC2D7E6CCA005A6B18 /* EntainTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EntainTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,13 +68,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		05E175C82D7E6CCA005A6B18 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05F6549E2D7E6D98004C7794 /* Testing.framework in Frameworks */,
+				05F654A32D7E6FDA004C7794 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		059057DF2D7D4F830095DE32 = {
 			isa = PBXGroup;
 			children = (
+				059058022D7D516B0095DE32 /* IDETemplateMacros.plist */,
 				059057EA2D7D4F830095DE32 /* Entain */,
+				05E175CC2D7E6CCA005A6B18 /* EntainTests */,
+				05F654982D7E6D88004C7794 /* Frameworks */,
 				059057E92D7D4F830095DE32 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +95,18 @@
 			isa = PBXGroup;
 			children = (
 				059057E82D7D4F830095DE32 /* Entain.app */,
+				05E175CB2D7E6CCA005A6B18 /* EntainTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		05F654982D7E6D88004C7794 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				05F6549D2D7E6D98004C7794 /* Testing.framework */,
+				05F654992D7E6D88004C7794 /* XCTest.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -70,6 +134,30 @@
 			productReference = 059057E82D7D4F830095DE32 /* Entain.app */;
 			productType = "com.apple.product-type.application";
 		};
+		05E175CA2D7E6CCA005A6B18 /* EntainTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 05E175D12D7E6CCA005A6B18 /* Build configuration list for PBXNativeTarget "EntainTests" */;
+			buildPhases = (
+				05E175C72D7E6CCA005A6B18 /* Sources */,
+				05E175C82D7E6CCA005A6B18 /* Frameworks */,
+				05E175C92D7E6CCA005A6B18 /* Resources */,
+				05F6549C2D7E6D89004C7794 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				05E175D02D7E6CCA005A6B18 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				05E175CC2D7E6CCA005A6B18 /* EntainTests */,
+			);
+			name = EntainTests;
+			packageProductDependencies = (
+			);
+			productName = EntainTests;
+			productReference = 05E175CB2D7E6CCA005A6B18 /* EntainTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +170,10 @@
 				TargetAttributes = {
 					059057E72D7D4F830095DE32 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					05E175CA2D7E6CCA005A6B18 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 059057E72D7D4F830095DE32;
 					};
 				};
 			};
@@ -100,12 +192,21 @@
 			projectRoot = "";
 			targets = (
 				059057E72D7D4F830095DE32 /* Entain */,
+				05E175CA2D7E6CCA005A6B18 /* EntainTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		059057E62D7D4F830095DE32 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				059058032D7D516B0095DE32 /* IDETemplateMacros.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		05E175C92D7E6CCA005A6B18 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +223,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		05E175C72D7E6CCA005A6B18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		05E175D02D7E6CCA005A6B18 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 059057E72D7D4F830095DE32 /* Entain */;
+			targetProxy = 05E175CF2D7E6CCA005A6B18 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		059057F42D7D4F880095DE32 /* Debug */ = {
@@ -225,6 +341,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -251,7 +368,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Entain/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Entain/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = ZM87MSCS59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -268,7 +385,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.Entain;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -280,7 +397,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Entain/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Entain/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = ZM87MSCS59;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -297,8 +414,44 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.Entain;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		05E175D22D7E6CCA005A6B18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZM87MSCS59;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.EntainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Entain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Entain";
+			};
+			name = Debug;
+		};
+		05E175D32D7E6CCA005A6B18 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZM87MSCS59;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chirag.testproject.EntainTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Entain.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Entain";
 			};
 			name = Release;
 		};
@@ -319,6 +472,15 @@
 			buildConfigurations = (
 				059057F72D7D4F880095DE32 /* Debug */,
 				059057F82D7D4F880095DE32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		05E175D12D7E6CCA005A6B18 /* Build configuration list for PBXNativeTarget "EntainTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05E175D22D7E6CCA005A6B18 /* Debug */,
+				05E175D32D7E6CCA005A6B18 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

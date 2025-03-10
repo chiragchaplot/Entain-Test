@@ -34,7 +34,7 @@ class RacePresenter: ObservableObject, @preconcurrency RacePresenterProtocol {
         
         self.races = fetchedRaces
       } catch {
-        self.errorMessage = (error as? NetworkError)?.errorDescription ?? "An error occurred."
+        self.errorMessage = (error as? NetworkError)?.localizedDescription ?? "An error occurred."
       }
     }
   }
