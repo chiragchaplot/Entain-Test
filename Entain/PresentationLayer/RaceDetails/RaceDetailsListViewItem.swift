@@ -47,6 +47,9 @@ struct RaceDetailsListViewItem: View {
         .foregroundColor(.red)
     }
     .padding(.vertical, 5)
+    .accessibilityElement()
+    .accessibilityLabel("\(viewModel.raceNumber) with \(viewModel.raceName) will start in \(viewModel.timeDifference)")
+    .accessibilityAddTraits(.isButton)
   }
 }
 

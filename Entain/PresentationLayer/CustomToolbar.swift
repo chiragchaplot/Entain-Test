@@ -28,6 +28,8 @@ struct CustomToolbar: View {
           Image(systemName: "magnifyingglass")
             .foregroundColor(.white)
         }
+        .accessibilityLabel("Search races")
+        .accessibilityHint("Opens the search interface")
         .accessibilityIdentifier("SearchButton")
         
         Button(action: {
@@ -38,6 +40,8 @@ struct CustomToolbar: View {
           Image(systemName: "line.3.horizontal.decrease.circle")
             .foregroundColor(.white)
         }
+        .accessibilityLabel("Filter races")
+        .accessibilityHint("Opens the filter menu to select race categories")
         .accessibilityIdentifier("FilterButton")
         
         Button(action: {
@@ -46,6 +50,8 @@ struct CustomToolbar: View {
           Image(systemName: "arrow.clockwise")
             .foregroundColor(.white)
         }
+        .accessibilityLabel("Refresh races")
+        .accessibilityHint("Refreshes the list of races")
         .accessibilityIdentifier("RefreshButton")
       }
       .padding()
