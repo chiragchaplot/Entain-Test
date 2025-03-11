@@ -12,7 +12,7 @@ struct EntainApp: App {
   @StateObject private var raceViewModel = RaceViewModel(interactor: RaceInteractor(raceService: RaceService()))
   var body: some Scene {
     WindowGroup {
-      RaceView(viewModel: raceViewModel)
+      SplashScreen()
     }
   }
 }
