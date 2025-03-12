@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct RaceView: View {
-  @ObservedObject var viewModel: RaceViewModel
+  @State var viewModel: RaceViewModel
   
   init(viewModel: RaceViewModel) {
     self.viewModel = viewModel

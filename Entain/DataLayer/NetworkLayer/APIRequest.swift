@@ -7,7 +7,7 @@
 //
 import Foundation
 
-protocol APIRequest {
+protocol APIRequest: Sendable {
     var path: String { get }
     var method: String { get }
     var queryParams: [String: String] { get }

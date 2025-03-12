@@ -8,9 +8,10 @@
 
 import SwiftUI
 
+@MainActor
 protocol CustomToolbarDelegate: AnyObject {
   func didTapSearch()
-  @MainActor func didTapRefresh()
+  func didTapRefresh()
   func didTapFilter(selectedFilters: [RaceCategory])
 }
 

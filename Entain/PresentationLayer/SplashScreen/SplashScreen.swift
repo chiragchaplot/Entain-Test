@@ -11,7 +11,7 @@ import SwiftUI
 
 struct SplashScreen: View {
   @State private var isActive = false
-  @StateObject private var raceViewModel = RaceViewModel(interactor: RaceInteractor(raceService: RaceService()))
+  @State private var raceViewModel = RaceViewModel(interactor: RaceInteractor(raceService: RaceService()))
   
   var body: some View {
     if isActive {

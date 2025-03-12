@@ -8,11 +8,11 @@
 
 import Foundation
 
-protocol RaceInteractorProtocol {
+protocol RaceInteractorProtocol: Sendable {
   func getNextRaces(count: Int) async throws -> RaceResponse
 }
 
-class RaceInteractor: RaceInteractorProtocol {
+final class RaceInteractor: RaceInteractorProtocol {
   private let raceService: RaceServiceProtocol
   
   init(raceService: RaceServiceProtocol) {

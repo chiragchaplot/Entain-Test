@@ -9,7 +9,6 @@ import SwiftUI
 
 @main
 struct EntainApp: App {
-  @StateObject private var raceViewModel = RaceViewModel(interactor: RaceInteractor(raceService: RaceService()))
   var body: some Scene {
     WindowGroup {
       SplashScreen()

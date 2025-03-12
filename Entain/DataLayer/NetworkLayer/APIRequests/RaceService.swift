@@ -8,11 +8,11 @@
 
 import Foundation
 
-protocol RaceServiceProtocol {
+protocol RaceServiceProtocol: Sendable {
   func fetchNextRaces(count: Int) async throws -> RaceResponse
 }
 
-class RaceService: RaceServiceProtocol {
+final class RaceService: RaceServiceProtocol {
   private let networkManager: NetworkService
   
   init(networkManager: NetworkService = NetworkManager()) {
@@ -32,7 +32,7 @@ class RaceService: RaceServiceProtocol {
   }
 }
 
-struct RaceAPIObject: APIRequest {
+struct RaceAPIObject: APIRequest, Sendable {
   let path: String = "/rest/v1/racing/"
   let method: String = "GET"
   let queryParams: [String: String]

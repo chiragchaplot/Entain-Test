@@ -40,11 +40,11 @@ protocol URLSessionProtocol {
 
 extension URLSession: URLSessionProtocol {}
 
-protocol NetworkService {
+protocol NetworkService: Sendable {
   func fetch<T: Decodable>(url: URL?, responseType: T.Type) async throws -> T
 }
 
-class NetworkManager: NetworkService {
+final class NetworkManager: NetworkService, @unchecked Sendable {
   private let session: URLSessionProtocol
   
   init(session: URLSessionProtocol = URLSession.shared) {

@@ -8,40 +8,41 @@
 
 import Foundation
 
-enum DataState<Value> {
+enum DataState {
   case loading
-  case success(Value)
+  case success([RaceSummary])
   case failure(String)
   case fetchAgain
 }
 
-class RaceViewModel: ObservableObject {
+@Observable @MainActor
+class RaceViewModel {
   private let interactor: RaceInteractorProtocol
-  @Published private(set) var state: DataState<[RaceSummary]> = .loading
+  private(set) var state: DataState = .loading
   private(set) var races: [RaceSummary] = []
   private(set) var errorMessage: String?
+  private var currentFilters: [RaceCategory] = [.greyhound, .harness, .horse]
+  private var lastFetchCount = 10
   
   init(interactor: RaceInteractorProtocol) {
     self.interactor = interactor
   }
   
-  @MainActor
-  func fetchRaces() {
+  /// Fetches races from the interactor
+  func fetchRaces(count: Int = 10) {
     state = .loading
     Task {
       do {
-        let raceResponse = try await interactor.getNextRaces(count: 10)
-        processFetchedRaces(raceResponse: raceResponse)
+        let raceResponse = try await interactor.getNextRaces(count: count)
+        updateRaces(with: raceResponse, append: false)
       } catch {
-        self.races = []
-        self.errorMessage = (error as? NetworkError)?.localizedDescription ?? "An error occurred."
-        state = .failure(self.errorMessage!)
+        handleFetchError(error)
       }
     }
   }
   
-  
-  private func processFetchedRaces(raceResponse: RaceResponse) {
+  /// Processes and updates the races
+  private func updateRaces(with raceResponse: RaceResponse, append: Bool) {
     var fetchedRaces = raceResponse.data?.nextToGoIDS?.compactMap { id in
       raceResponse.data?.raceSummaries?[id]
     } ?? []
@@ -53,14 +54,59 @@ class RaceViewModel: ObservableObject {
       return date1 < date2
     }
     
-    self.races = fetchedRaces
+    if append {
+      let newRaces = fetchedRaces.filter { newRace in
+        !races.contains(where: { $0.raceID == newRace.raceID })
+      }
+      self.races.append(contentsOf: newRaces)
+    } else {
+      self.races = fetchedRaces
+    }
+    
     self.errorMessage = nil
-    state = .success(fetchedRaces)
+    applyFilters()
   }
   
-  @MainActor func fetchAgain() {
+  
+  /// Handles fetch errors
+  private func handleFetchError(_ error: Error) {
+    self.races = []
+    self.errorMessage = (error as? NetworkError)?.localizedDescription ?? "An error occurred."
+    state = .failure(self.errorMessage!)
+  }
+  
+  /// Ensures there are at least 5 races available after filtering
+  private func ensureMinimumRaces() {
+    let filteredRaces = getFilteredRaces()
+    if filteredRaces.count < 5 {
+      lastFetchCount *= 2
+      fetchRaces(count: lastFetchCount)
+    } else {
+      lastFetchCount = 10
+      state = .success(Array(filteredRaces.prefix(10)))
+    }
+  }
+  
+  /// Applies filters and ensures minimum races
+  private func applyFilters() {
+    ensureMinimumRaces()
+  }
+  
+  /// Returns races filtered by current category selection
+  private func getFilteredRaces() -> [RaceSummary] {
+    return currentFilters.isEmpty ? races : races.filter { currentFilters.contains($0.raceCategory) }
+  }
+  
+  /// Called when the user taps refresh
+  func fetchAgain() {
     state = .fetchAgain
     fetchRaces()
+  }
+  
+  /// Updates filters when user selects a filter
+  func updateFilters(_ selectedFilters: [RaceCategory]) {
+    currentFilters = selectedFilters
+    applyFilters()
   }
   
   func getRaceItemViewModel(for race: RaceSummary) -> RaceDetailsListViewItemViewModel {
@@ -79,21 +125,14 @@ class RaceViewModel: ObservableObject {
 
 extension RaceViewModel: CustomToolbarDelegate {
   func didTapFilter(selectedFilters: [RaceCategory]) {
-    if selectedFilters.isEmpty {
-      state = .success(races)
-    } else {
-      let filteredRaces = races.filter { race in
-        selectedFilters.contains(race.raceCategory)
-      }
-      state = .success(filteredRaces)
-    }
+    updateFilters(selectedFilters)
   }
   
   func didTapSearch() {
-    // TODO: - Search
+    // TODO: - Implement search functionality
   }
   
-  @MainActor func didTapRefresh() {
-    self.fetchAgain()
+  func didTapRefresh() {
+    fetchAgain()
   }
 }
