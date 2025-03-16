@@ -79,6 +79,10 @@ final class NetworkManager: NetworkService, @unchecked Sendable {
       } catch {
         throw NetworkError.decodingFailed(error.localizedDescription)
       }
+    } catch let networkError as NetworkError {
+      throw networkError
+    } catch {
+      throw NetworkError.unknown(error)
     }
   }
 }

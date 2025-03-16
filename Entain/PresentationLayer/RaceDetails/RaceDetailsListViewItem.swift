@@ -10,10 +10,10 @@
 import SwiftUI
 
 struct RaceDetailsListViewItem: View {
-  @StateObject private var viewModel: RaceDetailsListViewItemViewModel
+  @State private var viewModel: RaceDetailsListViewItemViewModel
   
   init(viewModel: RaceDetailsListViewItemViewModel) {
-    _viewModel = StateObject(wrappedValue: viewModel)
+    _viewModel = State(wrappedValue: viewModel)
   }
   
   var body: some View {
@@ -48,7 +48,7 @@ struct RaceDetailsListViewItem: View {
     }
     .padding(.vertical, 5)
     .accessibilityElement()
-    .accessibilityLabel("\(viewModel.raceNumber) with \(viewModel.raceName) will start in \(viewModel.timeDifference)")
+    .accessibilityLabel("\(viewModel.raceNumber) with \(viewModel.raceName) has \(viewModel.timeDifference)")
     .accessibilityAddTraits(.isButton)
   }
 }
@@ -59,6 +59,8 @@ struct RaceDetailsListViewItem: View {
     raceName: "Grand Derby",
     raceCountry: "USA",
     raceStartTime: Calendar.current.date(byAdding: .minute, value: -10, to: Date())!,
-    raceNumber: "R2"
-))
+    raceNumber: "R2",
+    raceID: "",
+    onExpire: {}
+  ))
 }

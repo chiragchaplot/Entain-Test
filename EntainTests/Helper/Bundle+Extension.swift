@@ -19,4 +19,13 @@ extension Bundle {
     let decoder = JSONDecoder()
     return try decoder.decode(T.self, from: data)
   }
+  
+  func jsonData(fromResource resourceName: String, fileExtension: String = "json") -> Data? {
+    guard let url = self.url(forResource: resourceName, withExtension: fileExtension),
+          let data = try? Data(contentsOf: url) else {
+      print("Failed to load resource: \(resourceName).\(fileExtension)")
+      return nil
+    }
+    return data
+  }
 }

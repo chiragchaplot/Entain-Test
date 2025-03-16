@@ -29,7 +29,7 @@ class RaceViewModel {
   }
   
   /// Fetches races from the interactor
-  func fetchRaces(count: Int = 10) {
+  func fetchRaces(count: Int = 5) {
     state = .loading
     Task {
       do {
@@ -83,7 +83,7 @@ class RaceViewModel {
       fetchRaces(count: lastFetchCount)
     } else {
       lastFetchCount = 10
-      state = .success(Array(filteredRaces.prefix(10)))
+      state = .success(Array(filteredRaces.prefix(5)))
     }
   }
   
@@ -113,13 +113,23 @@ class RaceViewModel {
     let raceNumber = "R\(race.raceNumber ?? 0)"
     let raceCountry = race.venueCountry ?? "Unknown Country"
     let raceName = race.meetingName ?? "Unknown Race"
+    let raceID = race.raceID ?? ""
     return RaceDetailsListViewItemViewModel(
       raceImage: race.raceCategory.imageName,
       raceName: raceName,
       raceCountry: raceCountry,
       raceStartTime: Date(timeIntervalSince1970: TimeInterval(race.advertisedStart?.seconds ?? 0)),
-      raceNumber: raceNumber
+      raceNumber: raceNumber,
+      raceID: raceID,
+      onExpire: { [weak self] in
+        self?.handleExpiredRace(raceID: raceID)
+      }
     )
+  }
+  
+  private func handleExpiredRace(raceID: String) {
+    races.removeAll { $0.raceID == raceID }
+    fetchRaces()
   }
 }
 

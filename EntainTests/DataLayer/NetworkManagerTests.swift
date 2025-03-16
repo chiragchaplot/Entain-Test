@@ -10,84 +10,173 @@ import Testing
 import Foundation
 @testable import Entain
 
+@Suite("NetworkManager Tests")
 struct NetworkManagerTests {
-  @Test
-  func networkManagerFetchSuccessfulResponse() async throws {
-    let mockURLSession = MockURLSession()
-    let networkManager = NetworkManager(session: mockURLSession)
-    let expectedData = TestModel(id: 1, name: "Test")
-    let jsonData = try JSONEncoder().encode(expectedData)
-    mockURLSession.data = jsonData
-    mockURLSession.response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
+  
+  func createMockSession(
+    data: Data? = nil,
+    statusCode: Int = 200,
+    error: Error? = nil
+  ) -> MockURLSession {
+    let mock = MockURLSession()
+    mock.data = data
     
-    let result: TestModel = try await networkManager.fetch(url: URL(string: "https://example.com"), responseType: TestModel.self)
+    let url = URL(string: "https://example.com")!
+    mock.response = HTTPURLResponse(
+      url: url,
+      statusCode: statusCode,
+      httpVersion: "HTTP/1.1",
+      headerFields: nil
+    )
     
-    #expect(result.id == expectedData.id)
-    #expect(result.name == expectedData.name)
+    mock.error = error
+    return mock
   }
   
-  @Test
-  func networkManagerFetchInvalidURL() async {
-    let networkManager = NetworkManager(session: MockURLSession())
-    
-    await #expect(throws: NetworkError.invalidURL) {
-      try await networkManager.fetch(url: nil, responseType: TestModel.self)
-    }
+  func createValidJSON() -> Data {
+        """
+        {
+            "id": 123,
+            "name": "Test Name"
+        }
+        """.data(using: .utf8)!
   }
   
-  @Test
-  func networkManagerFetchRequestFailed() async {
-    let mockURLSession = MockURLSession()
-    let networkManager = NetworkManager(session: mockURLSession)
-    mockURLSession.response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 404, httpVersion: nil, headerFields: nil)
-    
-    await #expect(throws: NetworkError.requestFailed(404)) {
-      try await networkManager.fetch(url: URL(string: "https://example.com"), responseType: TestModel.self)
-    }
+  func createInvalidJSON() -> Data {
+        """
+        {
+            "id": 123,
+            "name":
+        }
+        """.data(using: .utf8)!
   }
   
-  @Test
-  func networkManagerFetchNoData() async {
-    let mockURLSession = MockURLSession()
-    let networkManager = NetworkManager(session: mockURLSession)
-    mockURLSession.data = Data()
-    mockURLSession.response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
+  @Test("fetch successfully decodes valid JSON response")
+  func testSuccessfulFetch() async throws {
+    let mockData = createValidJSON()
+    let mockSession = createMockSession(data: mockData)
+    let networkManager = NetworkManager(session: mockSession)
+    let url = URL(string: "https://example.com/api/data")
     
-    await #expect(throws: NetworkError.noData) {
-      try await networkManager.fetch(url: URL(string: "https://example.com"), responseType: TestModel.self)
-    }
+    let result = try await networkManager.fetch(url: url, responseType: MockModel.self)
+    
+    let expectedModel = MockModel(id: 123, name: "Test Name")
+    #expect(result == expectedModel)
   }
   
-  @Test
-  func networkManagerFetchDecodingFailed() async throws {
-    let mockURLSession = MockURLSession()
-    let networkManager = NetworkManager(session: mockURLSession)
-    let invalidJSONData = "{ \"invalid\": \"json\" }".data(using: .utf8)!
-    mockURLSession.data = invalidJSONData
-    mockURLSession.response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
-    
-    await #expect(throws: NetworkError.self) {
-      _ = try await networkManager.fetch(url: URL(string: "https://example.com"), responseType: TestModel.self)
-    }
-  }
-
-  @Test
-  func networkManagerFetchUnknownError() async throws {
-    let mockURLSession = MockURLSession()
-    let networkManager = NetworkManager(session: mockURLSession)
-    mockURLSession.error = NetworkError.unknown(URLError(.notConnectedToInternet))
+  @Test("fetch throws invalidURL error when URL is nil")
+  func testNilURL() async {
+    let mockSession = createMockSession(data: createValidJSON())
+    let networkManager = NetworkManager(session: mockSession)
     
     do {
-      _ = try await networkManager.fetch(url: URL(string: "https://example.com"), responseType: TestModel.self)
-      #expect(false, "Expected NetworkError.unknown, but no error was thrown")
+      _ = try await networkManager.fetch(url: nil, responseType: MockModel.self)
+      #expect(false, "Expected invalidURL error but no error was thrown")
+    } catch let error as NetworkError {
+      #expect(error == NetworkError.invalidURL)
     } catch {
-      #expect(error is NetworkError)
-      #expect(error as? NetworkError == .unknown(URLError(.notConnectedToInternet)))
+      #expect(false, "Expected NetworkError.invalidURL but got \(error)")
+    }
+  }
+  
+  @Test("fetch throws invalidURL error for malformed URL")
+  func testInvalidURL() async {
+    let mockSession = createMockSession(data: createValidJSON())
+    let networkManager = NetworkManager(session: mockSession)
+    let invalidURL = URL(string: "invalid-url")
+    
+    do {
+      _ = try await networkManager.fetch(url: invalidURL, responseType: MockModel.self)
+      #expect(false, "Expected invalidURL error but no error was thrown")
+    } catch let error as NetworkError {
+      #expect(error == NetworkError.invalidURL)
+    } catch {
+      #expect(false, "Expected NetworkError.invalidURL but got \(error)")
+    }
+  }
+  
+  @Test("fetch throws requestFailed error for non-2xx status codes")
+  func testNon200Response() async {
+    let mockSession = createMockSession(data: createValidJSON(), statusCode: 404)
+    let networkManager = NetworkManager(session: mockSession)
+    let url = URL(string: "https://example.com/api/data")
+    
+    do {
+      _ = try await networkManager.fetch(url: url, responseType: MockModel.self)
+      #expect(false, "Expected requestFailed error but no error was thrown")
+    } catch let error as NetworkError {
+      #expect(error == NetworkError.requestFailed(404))
+    } catch {
+      #expect(false, "Expected NetworkError.requestFailed but got \(error)")
+    }
+  }
+  
+  @Test("fetch throws noData error when response data is empty")
+  func testEmptyData() async {
+    let emptyData = Data()
+    let mockSession = createMockSession(data: emptyData)
+    let networkManager = NetworkManager(session: mockSession)
+    let url = URL(string: "https://example.com/api/data")
+    
+    do {
+      _ = try await networkManager.fetch(url: url, responseType: MockModel.self)
+      #expect(false, "Expected noData error but no error was thrown")
+    } catch let error as NetworkError {
+      #expect(error == NetworkError.noData)
+    } catch {
+      #expect(false, "Expected NetworkError.noData but got \(error)")
+    }
+  }
+  
+  @Test("fetch throws decodingFailed error when JSON is invalid")
+  func testInvalidJSON() async {
+    let invalidJSON = createInvalidJSON()
+    let mockSession = createMockSession(data: invalidJSON)
+    let networkManager = NetworkManager(session: mockSession)
+    let url = URL(string: "https://example.com/api/data")
+    
+    do {
+      _ = try await networkManager.fetch(url: url, responseType: MockModel.self)
+      #expect(false, "Expected decodingFailed error but no error was thrown")
+    } catch let error as NetworkError {
+      #expect(error.localizedEquatable(to: NetworkError.decodingFailed("")))
+    } catch {
+      #expect(false, "Expected NetworkError.decodingFailed but got \(error)")
+    }
+  }
+  
+  @Test("fetch propagates underlying network errors as unknown errors")
+  func testUnderlyingNetworkError() async {
+    let underlyingError = NSError(domain: "Test", code: 123)
+    let mockSession = createMockSession(error: underlyingError)
+    let networkManager = NetworkManager(session: mockSession)
+    let url = URL(string: "https://example.com/api/data")
+    
+    do {
+      _ = try await networkManager.fetch(url: url, responseType: MockModel.self)
+      #expect(false, "Expected unknown error but no error was thrown")
+    } catch let error as NetworkError {
+      switch error {
+      case .unknown(let wrappedError):
+        let nsError = wrappedError as NSError
+        #expect(nsError.domain == "Test")
+        #expect(nsError.code == 123)
+      default:
+        #expect(false, "Expected NetworkError.unknown but got \(error)")
+      }
+    } catch {
+      #expect(false, "Expected NetworkError.unknown but got \(error)")
     }
   }
 }
 
-struct TestModel: Codable, Equatable {
-  let id: Int
-  let name: String
+extension NetworkError {
+  func localizedEquatable(to other: NetworkError) -> Bool {
+    switch (self, other) {
+    case (.decodingFailed, .decodingFailed):
+      return true
+    default:
+      return self == other
+    }
+  }
 }

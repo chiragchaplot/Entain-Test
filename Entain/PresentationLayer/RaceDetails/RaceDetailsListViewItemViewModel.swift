@@ -8,23 +8,35 @@
 
 import SwiftUI
 
-class RaceDetailsListViewItemViewModel: ObservableObject {
+@Observable
+class RaceDetailsListViewItemViewModel {
   let raceImage: String
   let raceName: String
   let raceCountry: String
   let raceStartTime: Date
   let raceNumber: String
+  private let raceID: String
   
-  @Published var timeDifference: String = ""
+  private let onExpire: () -> Void
+  
+  var timeDifference: String = ""
   
   private var timer: Timer?
   
-  init(raceImage: String, raceName: String, raceCountry: String, raceStartTime: Date, raceNumber: String) {
+  init(raceImage: String,
+       raceName: String,
+       raceCountry: String,
+       raceStartTime: Date,
+       raceNumber: String,
+       raceID: String,
+       onExpire: @escaping () -> Void) {
     self.raceImage = raceImage
     self.raceName = raceName
     self.raceCountry = raceCountry
     self.raceStartTime = raceStartTime
     self.raceNumber = raceNumber
+    self.raceID = raceID
+    self.onExpire = onExpire
     updateTimeDifference()
     startTimer()
   }
@@ -36,6 +48,10 @@ class RaceDetailsListViewItemViewModel: ObservableObject {
       
       if diff > 0 {
           self.timeDifference = "Started \(minutes)m \(seconds)s ago"
+        if seconds == 59 {
+          timer?.invalidate()
+          onExpire()
+        }
       } else {
           self.timeDifference = "\(minutes)m \(seconds)s to go"
       }

@@ -9,11 +9,19 @@
 import Foundation
 @testable import Entain
 
-class MockRaceService: RaceServiceProtocol {
+final class MockRaceService: RaceServiceProtocol, @unchecked Sendable {
   var mockResponse: RaceResponse?
   var mockError: Error?
+  var fetchCalledWithCount: Int?
+  
+  init(mockResponse: RaceResponse? = nil, mockError: Error? = nil) {
+    self.mockResponse = mockResponse
+    self.mockError = mockError
+  }
   
   func fetchNextRaces(count: Int) async throws -> RaceResponse {
+    fetchCalledWithCount = count
+    
     if let error = mockError {
       throw error
     }

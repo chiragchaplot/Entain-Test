@@ -10,77 +10,122 @@ import Testing
 @testable import Entain
 import Foundation
 
-class RaceViewModelTests {
-  let dummyRaceResponse = RaceResponse(
+@MainActor
+@Suite("RaceViewModel Tests")
+struct RaceViewModelTests {
+  @Test("Initial state should be loading")
+  func initialStateLoading() {
+    let mockResponse = RaceResponse(
       status: 200,
-      data:  DataClass(
-        nextToGoIDS: ["1", "2"],
-        raceSummaries: [
-            "1": RaceSummary(
-              raceID: "1",
-              raceName: "Sample Race 1",
-              raceNumber: 1,
-              meetingID: "M1",
-              meetingName: "Sample Meeting 1",
-              categoryID: "greyhound",
-              advertisedStart: AdvertisedStart(seconds: 1200),
-              raceForm: nil,
-              venueID: "V1",
-              venueName: "Sample Venue 1",
-              venueState: "Sample State",
-              venueCountry: "Australia"
-          ),
-            "2": RaceSummary(
-              raceID: "2",
-              raceName: "Sample Race 2",
-              raceNumber: 2,
-              meetingID: "M2",
-              meetingName: "Sample Meeting 2",
-              categoryID: "harness",
-              advertisedStart: AdvertisedStart(seconds: 1500),
-              raceForm: nil,
-              venueID: "V2",
-              venueName: "Sample Venue 2",
-              venueState: "Sample State",
-              venueCountry: "USA"
-          )
-        ]
-    ),
-      message: "Success"
-  )
-  
-
-  @Test("Fetch Races Failure")
-  func testRacesFailure() async throws {
-    var mockInteractor: MockRaceInteractor! = MockRaceInteractor()
-    var viewModel = RaceViewModel(interactor: mockInteractor)
-    mockInteractor.mockResult = .failure(NetworkError.decodingFailed("Something went wrong"))
-    await viewModel.fetchRaces()
-  }
-  
-  @Test("Fetch Races Success")
-  func testRacesSuccess() async throws {
-    var mockInteractor: MockRaceInteractor! = MockRaceInteractor()
-    var viewModel = RaceViewModel(interactor: mockInteractor)
-    mockInteractor.mockResult = .success(self.dummyRaceResponse)
-    await viewModel.fetchRaces()
-  }
-}
-
-class MockRaceInteractor: RaceInteractorProtocol {
-  var mockResult: Result<RaceResponse, Error>?
-  
-  func getNextRaces(count: Int) async throws -> RaceResponse {
-    guard let result = mockResult else {
-      fatalError("Mock result not set")
-    }
+      data: nil,
+      message: nil
+    )
     
-    switch result {
-    case .success(let response):
-      return response
-    case .failure(let error):
-      throw error
+    let mockInteractor = MockRaceInteractor(mockResponse: mockResponse)
+    let viewModel = RaceViewModel(interactor: mockInteractor)
+    
+    switch viewModel.state {
+    case .loading:
+      #expect(true)
+    default:
+      #expect(Bool(false), "State should be loading")
     }
+    #expect(viewModel.races.isEmpty)
+  }
+  
+  @Test("Fetch races should update state and races")
+  func fetchRacesSuccessful() async throws {
+    let mockRaces = [
+      createMockRaceSummary(id: "1", category: .horse),
+      createMockRaceSummary(id: "2", category: .greyhound),
+      createMockRaceSummary(id: "3", category: .harness),
+      createMockRaceSummary(id: "4", category: .horse),
+      createMockRaceSummary(id: "5", category: .greyhound),
+      createMockRaceSummary(id: "6", category: .harness),
+      createMockRaceSummary(id: "7", category: .horse),
+      createMockRaceSummary(id: "8", category: .greyhound),
+      createMockRaceSummary(id: "9", category: .harness)
+    ]
+    let mockResponse = RaceResponse(
+      status: 200,
+      data: DataClass(
+        nextToGoIDS: mockRaces.map { $0.raceID! },
+        raceSummaries: Dictionary(uniqueKeysWithValues: mockRaces.compactMap {
+          guard let id = $0.raceID else { return nil }
+          return (id, $0)
+        })
+      ),
+      message: nil
+    )
+    let mockInteractor = MockRaceInteractor(mockResponse: mockResponse)
+    let viewModel = RaceViewModel(interactor: mockInteractor)
+    
+    viewModel.fetchRaces(count: 9)
+    
+    try await Task.sleep(nanoseconds: 100_000_000)
+    
+    #expect(viewModel.races.count == 9)
+    switch viewModel.state {
+    case .success(let races):
+      #expect(true)
+      #expect(races.count == 5)
+    default:
+      #expect(Bool(false), "Races should have loaded")
+    }
+  }
+  
+  @Test("Fetch races error should update state")
+  func fetchRacesError() async throws {
+    let mockInteractor = MockRaceInteractor(mockError: NetworkError.noData)
+    let viewModel = RaceViewModel(interactor: mockInteractor)
+    
+    viewModel.fetchRaces()
+    
+    try await Task.sleep(nanoseconds: 100_000_000)
+    
+    #expect(viewModel.races.isEmpty)
+    switch viewModel.state {
+    case .failure(let string):
+      #expect(true)
+    default:
+      #expect(Bool(false))
+    }
+  }
+  
+  @Test("Get race item view model")
+  func getRaceItemViewModel() {
+    let mockRace = createMockRaceSummary(
+      id: "1",
+      category: .horse,
+      startTime: 1741496400
+    )
+    let mockInteractor = MockRaceInteractor()
+    let viewModel = RaceViewModel(interactor: mockInteractor)
+    
+    let raceItemVM = viewModel.getRaceItemViewModel(for: mockRace)
+    
+    #expect(raceItemVM.raceName == "Mock Meeting")
+    #expect(raceItemVM.raceCountry == "Mock Country")
   }
 }
 
+func createMockRaceSummary(
+  id: String,
+  category: RaceCategory,
+  startTime: Int = 0
+) -> RaceSummary {
+  RaceSummary(
+    raceID: id,
+    raceName: "Mock Race",
+    raceNumber: 1,
+    meetingID: "meeting1",
+    meetingName: "Mock Meeting",
+    categoryID: category.rawValue,
+    advertisedStart: AdvertisedStart(seconds: startTime),
+    raceForm: nil,
+    venueID: "venue1",
+    venueName: "Mock Venue",
+    venueState: "Mock State",
+    venueCountry: "Mock Country"
+  )
+}

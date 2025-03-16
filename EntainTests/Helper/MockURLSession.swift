@@ -9,7 +9,8 @@
 import Foundation
 @testable import Entain
 
-class MockURLSession: URLSessionProtocol {
+/// A mock URLSession that allows us to control the responses in tests
+final class MockURLSession: URLSessionProtocol {
   var data: Data?
   var response: URLResponse?
   var error: Error?
@@ -18,6 +19,20 @@ class MockURLSession: URLSessionProtocol {
     if let error = error {
       throw error
     }
-    return (data ?? Data(), response ?? HTTPURLResponse())
+    
+    guard let data = data, let response = response else {
+      throw NetworkError.unknown(NSError(domain: "MockError", code: -1))
+    }
+    
+    return (data, response)
   }
+}
+
+
+// MARK: - Mock Objects
+
+/// Sample model to decode in tests
+struct MockModel: Decodable, Equatable {
+    let id: Int
+    let name: String
 }

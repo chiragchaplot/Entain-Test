@@ -10,29 +10,52 @@ import Testing
 import Foundation
 @testable import Entain
 
-struct RaceServiceTests {
-  @Test
-  func raceServiceFetchNextRacesSuccess() async throws {
+@Suite("RaceService Tests")
+class RaceServiceTests {
+  
+  @Test("Fetch next races should return successful response with correct data")
+  func fetchNextRacesSuccessful() async throws {
+    let jsonData = Bundle(for: Self.self).jsonData(fromResource: "RaceResponseJsonFixture")!
     let mockNetworkManager = MockNetworkManager()
-    let raceService = RaceService(networkManager: mockNetworkManager)
-    let jsonData = try loadLocalJSONFile(named: "RaceResponseJsonFixture.json")
-    mockNetworkManager.mockResponseData = jsonData
+    await mockNetworkManager.setupSuccess(with: jsonData)
+    let sut = RaceService(networkManager: mockNetworkManager)
     
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    
-    
-    let result = try await raceService.fetchNextRaces(count: 10)
+    let result = try await sut.fetchNextRaces(count: 10)
     
     #expect(result.status == 200)
+    #expect(result.message == "Next 10 races from each category")
+    #expect(result.data != nil)
     #expect(result.data?.nextToGoIDS?.count == 10)
+    #expect(result.data?.raceSummaries?.count == 10)
+    
+    let capturedURL = await mockNetworkManager.getCapturedURL()
+    #expect(capturedURL != nil)
+    let urlString = capturedURL?.absoluteString ?? ""
+    #expect(urlString.contains(APIConfig.baseURL + "/rest/v1/racing/"))
+    #expect(urlString.contains("method=nextraces"))
+    #expect(urlString.contains("count=10"))
   }
   
-  @Test
-  func raceServiceFetchNextRacesInvalidURL() async {
-    struct InvalidAPIObject: APIRequest {
-      let path: String = ""
-      let method: String = ""
+  @Test("Fetch next races should handle zero count")
+  func fetchNextRacesZeroCount() async throws {
+    let jsonData = Bundle(for: Self.self).jsonData(fromResource: "RaceResponseJsonFixture")!
+    let mockNetworkManager = MockNetworkManager()
+    await mockNetworkManager.setupSuccess(with: jsonData)
+    let sut = RaceService(networkManager: mockNetworkManager)
+    
+    let result = try await sut.fetchNextRaces(count: 0)
+    
+    let capturedURL = await mockNetworkManager.getCapturedURL()
+    #expect(capturedURL != nil)
+    let urlString = capturedURL?.absoluteString ?? ""
+    #expect(urlString.contains("count=0"))
+  }
+  
+  @Test("Fetch next races should throw invalidURL error")
+  func fetchNextRacesInvalidURL() async throws {
+    struct FailingAPIObject: APIRequest {
+      let path: String = "/invalid/path"
+      let method: String = "GET"
       let queryParams: [String: String] = [:]
       
       func buildURL() -> URL? {
@@ -40,50 +63,48 @@ struct RaceServiceTests {
       }
     }
     
-    let mockNetworkManager = MockNetworkManager()
-    let raceService = RaceService(networkManager: mockNetworkManager)
-    
-    await #expect(throws: NetworkError.noData) {
-      _ = try await raceService.fetchNextRaces(count: -1)
-    }
-  }
-  
-  @Test
-  func raceServiceFetchNextRacesDecodingError() async {
-    let mockNetworkManager = MockNetworkManager()
-    let raceService = RaceService(networkManager: mockNetworkManager)
-    
-    mockNetworkManager.mockResponseData = """
-              { "invalid_key": "invalid_value" }
-              """.data(using: .utf8)
-    
-    await #expect {
-      _ = try await raceService.fetchNextRaces(count: 2)
-    } throws: { error in
-      guard let networkError = error as? NetworkError else { return false }
-      if case .decodingFailed(_) = networkError {
-        return true
+    struct FailingNetworkManager: NetworkService {
+      func fetch<T: Decodable>(url: URL?, responseType: T.Type) async throws -> T {
+        throw NetworkError.invalidURL
       }
-      return false
+    }
+    
+    let sut = RaceService(networkManager: FailingNetworkManager())
+    
+    do {
+      _ = try await sut.fetchNextRaces(count: 5)
+      throw ExpectedFailure("Should have thrown invalidURL error")
+    } catch let error as NetworkError {
+      #expect(error == .invalidURL)
     }
   }
   
-  @Test
-  func raceServiceFetchNextRacesRequestFailed() async {
+  @Test("Fetch next races should verify race categories")
+  func fetchNextRacesCategories() async throws {
+    let jsonData = Bundle(for: Self.self).jsonData(fromResource: "RaceResponseJsonFixture")!
     let mockNetworkManager = MockNetworkManager()
-    let raceService = RaceService(networkManager: mockNetworkManager)
+    await mockNetworkManager.setupSuccess(with: jsonData)
+    let sut = RaceService(networkManager: mockNetworkManager)
     
-    mockNetworkManager.mockError = NetworkError.requestFailed(404)
+    let result = try await sut.fetchNextRaces(count: 10)
     
-    await #expect(throws: NetworkError.requestFailed(404)) {
-      _ = try await raceService.fetchNextRaces(count: 2)
+    let raceSummaries = result.data?.raceSummaries ?? [:]
+    
+    let horseCategoryID = "4a2788f8-e825-4d36-9894-efd4baf1cfae"
+    let harnessCategoryID = "161d9be2-e909-4326-8c2c-35ed71fb460b"
+    
+    var horseRaceCount = 0
+    var harnessRaceCount = 0
+    
+    for (_, race) in raceSummaries {
+      if race.categoryID == horseCategoryID {
+        horseRaceCount += 1
+      } else if race.categoryID == harnessCategoryID {
+        harnessRaceCount += 1
+      }
     }
-  }
-  
-  func loadLocalJSONFile(named fileName: String) throws -> Data {
-    let thisSourceFile = URL(fileURLWithPath: #file)
-    let thisDirectory = thisSourceFile.deletingLastPathComponent()
-    let resourceURL = thisDirectory.appendingPathComponent(fileName)
-    return try Data(contentsOf: resourceURL)
+    
+    #expect(horseRaceCount > 0, "Should have at least one horse race")
+    #expect(harnessRaceCount > 0, "Should have at least one harness race")
   }
 }
