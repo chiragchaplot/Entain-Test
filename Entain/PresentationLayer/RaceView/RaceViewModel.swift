@@ -28,7 +28,8 @@ class RaceViewModel {
     self.interactor = interactor
   }
   
-  /// Fetches races from the interactor
+  /// Retrieves races from the interactor
+  /// - Parameter count: Number of races to fetch, defaults to 10
   func fetchRaces(count: Int = 10) {
     state = .loading
     Task {
@@ -104,7 +105,8 @@ class RaceViewModel {
   }
   
   
-  /// Handles fetch errors
+  /// Handles errors during race fetching
+  /// - Parameter error: Encountered error
   private func handleFetchError(_ error: Error) {
     self.races = []
     self.errorMessage = (error as? NetworkError)?.localizedDescription ?? "An error occurred."
@@ -128,7 +130,8 @@ class RaceViewModel {
     ensureMinimumRaces()
   }
   
-  /// Returns races filtered by current category selection
+  /// Returns races matching current filters
+  /// - Returns: Filtered race list
   private func getFilteredRaces() -> [RaceSummary] {
     return currentFilters.isEmpty ? races : races.filter { currentFilters.contains($0.raceCategory) }
   }
@@ -145,6 +148,9 @@ class RaceViewModel {
     applyFilters()
   }
   
+  /// Creates view model for a specific race item
+  /// - Parameter race: Race summary
+  /// - Returns: Configured race item view model
   func getRaceItemViewModel(for race: RaceSummary) -> RaceDetailsListViewItemViewModel {
     let raceNumber = "R\(race.raceNumber ?? 0)"
     let raceCountry = race.venueCountry ?? "Unknown Country"
@@ -163,6 +169,8 @@ class RaceViewModel {
     )
   }
   
+  /// Removes expired race and fetches new races
+  /// - Parameter raceID: ID of expired race
   private func handleExpiredRace(raceID: String) {
     races.removeAll { $0.raceID == raceID }
     fetchRaces()

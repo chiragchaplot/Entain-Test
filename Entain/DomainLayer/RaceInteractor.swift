@@ -9,6 +9,10 @@
 import Foundation
 
 protocol RaceInteractorProtocol: Sendable {
+  /// Retrieves next races for a specified count
+  /// - Parameter count: Number of races to fetch
+  /// - Returns: RaceResponse containing race information
+  /// - Throws: Errors during race data retrieval
   func getNextRaces(count: Int) async throws -> RaceResponse
 }
 

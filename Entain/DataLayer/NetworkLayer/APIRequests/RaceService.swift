@@ -9,6 +9,10 @@
 import Foundation
 
 protocol RaceServiceProtocol: Sendable {
+  /// Fetches next races for a specified count
+  /// - Parameter count: Number of races to fetch
+  /// - Returns: RaceResponse containing race information
+  /// - Throws: Network-related errors during fetch
   func fetchNextRaces(count: Int) async throws -> RaceResponse
 }
 
@@ -32,11 +36,14 @@ final class RaceService: RaceServiceProtocol {
   }
 }
 
+/// Represents API request configuration for race-related network calls
 struct RaceAPIObject: APIRequest, Sendable {
   let path: String = "/rest/v1/racing/"
   let method: String = "GET"
   let queryParams: [String: String]
   
+  /// Constructs a complete URL for the race API request
+  /// - Returns: Fully formed URL with base URL and query parameters, or nil if invalid
   func buildURL() -> URL? {
     var components = URLComponents(string: APIConfig.baseURL + path)
     components?.queryItems = queryParams.map { URLQueryItem(name: $0.key, value: $0.value) }

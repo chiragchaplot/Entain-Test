@@ -35,12 +35,22 @@ enum NetworkError: Error, Equatable {
 }
 
 protocol URLSessionProtocol {
-    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+  /// Asynchronously retrieves data for a given URL request
+  /// - Parameter request: URLRequest to fetch data from
+  /// - Returns: A tuple of retrieved data and response
+  /// - Throws: Any errors encountered during data retrieval
+  func data(for request: URLRequest) async throws -> (Data, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {}
 
 protocol NetworkService: Sendable {
+  /// Fetches and decodes a network response of a specified Decodable type
+  /// - Parameters:
+  ///   - url: Optional URL to fetch data from
+  ///   - responseType: Type of Decodable response to decode
+  /// - Returns: Decoded object of specified type
+  /// - Throws: NetworkError if any stage of fetch or decode fails
   func fetch<T: Decodable>(url: URL?, responseType: T.Type) async throws -> T
 }
 
