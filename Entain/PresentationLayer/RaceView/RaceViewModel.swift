@@ -29,7 +29,7 @@ class RaceViewModel {
   }
   
   /// Fetches races from the interactor
-  func fetchRaces(count: Int = 5) {
+  func fetchRaces(count: Int = 10) {
     state = .loading
     Task {
       do {
@@ -41,30 +41,66 @@ class RaceViewModel {
     }
   }
   
-  /// Processes and updates the races
+  /// Processes and updates the races from a race response
+  /// - Parameters:
+  ///   - raceResponse: The response containing race data
+  ///   - append: Whether to append new races or replace existing ones
   private func updateRaces(with raceResponse: RaceResponse, append: Bool) {
-    var fetchedRaces = raceResponse.data?.nextToGoIDS?.compactMap { id in
+    let fetchedRaces = extractRaces(from: raceResponse)
+    let filteredRaces = filterRacesByTime(fetchedRaces)
+    let sortedRaces = sortRaces(filteredRaces)
+    
+    updateRacesList(sortedRaces, append: append)
+    
+    self.errorMessage = nil
+    applyFilters()
+  }
+  
+  /// Extracts race summaries from the race response
+  /// - Parameter raceResponse: The response to extract races from
+  /// - Returns: An array of race summaries
+  private func extractRaces(from raceResponse: RaceResponse) -> [RaceSummary] {
+    return raceResponse.data?.nextToGoIDS?.compactMap { id in
       raceResponse.data?.raceSummaries?[id]
     } ?? []
-    
-    fetchedRaces.sort {
-      guard let date1 = $0.advertisedStart?.seconds, let date2 = $1.advertisedStart?.seconds else {
+  }
+  
+  /// Filters races to include only those starting more than 60 seconds from now
+  /// - Parameter races: The races to filter
+  /// - Returns: Filtered array of races
+  private func filterRacesByTime(_ races: [RaceSummary]) -> [RaceSummary] {
+    return races.filter { race in
+      guard let startTime = race.advertisedStart?.seconds else { return false }
+      return startTime - Int(Date().timeIntervalSince1970) >= 60
+    }
+  }
+  
+  /// Sorts races by their start time
+  /// - Parameter races: The races to sort
+  /// - Returns: Sorted array of races
+  private func sortRaces(_ races: [RaceSummary]) -> [RaceSummary] {
+    return races.sorted {
+      guard let date1 = $0.advertisedStart?.seconds,
+            let date2 = $1.advertisedStart?.seconds else {
         return false
       }
       return date1 < date2
     }
-    
+  }
+  
+  /// Updates the races list, optionally appending new races
+  /// - Parameters:
+  ///   - newRaces: The races to update the list with
+  ///   - append: Whether to append or replace existing races
+  private func updateRacesList(_ newRaces: [RaceSummary], append: Bool) {
     if append {
-      let newRaces = fetchedRaces.filter { newRace in
+      let uniqueNewRaces = newRaces.filter { newRace in
         !races.contains(where: { $0.raceID == newRace.raceID })
       }
-      self.races.append(contentsOf: newRaces)
+      self.races.append(contentsOf: uniqueNewRaces)
     } else {
-      self.races = fetchedRaces
+      self.races = newRaces
     }
-    
-    self.errorMessage = nil
-    applyFilters()
   }
   
   
